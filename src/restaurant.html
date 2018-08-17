@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Cache-Control" content="max-age=1209600">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+
+  <!-- Main CSS file -->
+  <link rel="stylesheet" href="./css/styles.css">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#317EFB" />
+  <title>Restaurant Info</title>
+</head>
+
+<body class="inside">
+  <div class="container">
+    <!-- Beginning header -->
+    <header role="banner">
+      <!-- Beginning nav -->
+      <div class="row">
+        <nav role="navigation">
+          <h1>
+            <a href="/">Restaurant Reviews</a>
+          </h1>
+        </nav>
+      </div>
+      <!-- Beginning breadcrumb -->
+      <div class="row">
+        <nav id="breadcrumb">
+          <ul id="breadcrumb-ul">
+
+          </ul>
+        </nav>
+      </div>
+      <!-- End breadcrumb -->
+      <!-- End nav -->
+      <a href="#restaurant-container" class="skip-link">Skip to main content</a>
+
+    </header>
+    <!-- End header -->
+
+    <!-- Beginning main -->
+    <main id="maincontent" role="main">
+
+      <!-- Beginning restaurant -->
+      <section id="restaurant-container">
+        <!-- TODO PROJECT REVIEW
+         Correct restaurant's name semantic mistake in restaurant.html -->
+        <!-- <h1 id="restaurant-name"></h1> -->
+        <!-- Add responsive images -->
+        <h2 id="restaurant-name"></h2>
+        <picture id="restaurant-picture"></picture>
+
+
+        <p aria-label="Type of Cuisine" id="restaurant-cuisine"></p>
+        <p aria-label="restaurant's address" id="restaurant-address"></p>
+        <table role="table" aria-label="Restaurant's hours" id="restaurant-hours"></table>
+      </section>
+      <!-- end restaurant -->
+      <!-- Beginning reviews -->
+
+      <section id="review-add">
+        <h2 id="form-title">Add Review</h2>
+        <form id="review-form">
+
+          <input id="review-author" name="name" placeholder="Your name..." type="text" required>
+
+          <div class="ratings">
+            <p>Rating</p>
+            <select name="rating" id="rating_select" aria-label="rating selection">
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+              <option value="5">5</option>
+            </select>
+            <textarea name="" id="review-comments" cols="30" rows="10" placeholder="Your Comments..." required></textarea>
+            <button class="send-button" type="submit">Send</button>
+          </div>
+        </form>
+
+      </section>
+      <section id="reviews-container">
+
+        <ul id="reviews-list"></ul>
+      </section>
+      <!-- End reviews -->
+
+      <!-- Beginning map -->
+      <section id="map-container" aria-label="New York City map with restaurants locations " role="application ">
+        <div id="map"></div>
+      </section>
+      <!-- End map -->
+    </main>
+    <!-- End main -->
+
+    <!-- Beginning footer -->
+    <footer id="footer" role="contentinfo ">
+      Copyright (c) 2017
+      <a href="/ ">
+        <strong>Restaurant Reviews</strong>
+      </a> All Rights Reserved.
+    </footer>
+    <!-- End footer -->
+
+    <!-- Beginning scripts -->
+
+    <script src="sw.js"></script>
+    <script src="/js/restaurant-detail.js"></script>
+
+    <!-- <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyACGz0tWs__s2RqU_lZ5dZc3PYTYn-O7-E&libraries=places&callback=initMap"></script> -->
+
+    <!-- End scripts -->
+  </div>
+
+</body>
+
+</html>

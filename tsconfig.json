@@ -1,0 +1,11 @@
+{
+    "files": [
+        "src/assets/js/restaurant-detail.ts",
+        "src/assets/js/index.ts"
+    ],
+    "compilerOptions": {
+        "noImplicitAny": true,
+        "target": "es5",
+        "lib": ["es5", "es6", "es7", "dom"]
+    }
+}
