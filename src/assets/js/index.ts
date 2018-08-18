@@ -1,3 +1,4 @@
+declare var google: any;
 // Service Worker
 /* if ('serviceWorker' in navigator) {
     navigator.serviceWorker
@@ -14,105 +15,242 @@
         });
 } */
 // End Service Worker
-const requestRestaurants = async () => {
-    let res = await fetch("http://localhost:1337/restaurants");
-    if (res.status == 200) {
-        let data = await res.json();
-        const restaurants = homePage(data);
-        return restaurants;
-    }
-    throw new Error(`${res.status}`)
-
-};
-const errorMessage = (e: any) => {
-    const ul = document.getElementById("restaurants-list");
-
-    let htmlContent = `
-    <p class="error">There is no connection with the server. Try again later</p>
-    `;
-    ul.insertAdjacentHTML('beforebegin', htmlContent)
-
-}
+let restaurants;
+let neighborhoods: any;
+let cuisines;
+let map;
+const markers = [];
+/**
+ * Fetch neighborhoods and cuisines as soon as the page is loaded.
+ */
 document.addEventListener('DOMContentLoaded', (event) => {
-    requestRestaurants().catch(e => errorMessage(e))
-
+    fetchNeighborhoods();
+    fetchCuisines();
 });
 
-/* TODO: add reviews
-const requestReviews = async () => {
-    const res = await fetch('http://localhost:1337/reviews')
-    const data = await res.json()
-    console.log(data)
+/**
+ * Fetch all neighborhoods and set their HTML.
+ */
+
+const fetchNeighborhoods = () => {
+    DBHelper.requestRestaurants((error: any, neighborhoods: any) => {
+        if (error) { // Got an error
+            console.error(error);
+        } else {
+            (<any>self).neighborhoods = neighborhoods;
+            fillNeighborhoodsHTML();
+        }
+    });
 }
-requestReviews(); */
-
-const homePage = (restaurants: any) => {
-
-    const ul = document.getElementById("restaurants-list");
-
-    restaurants.map((restaurant: any) => {
-
-        const srcsetMobile = `images/${restaurant.photograph}-mobile.webp`;
-        const srcsetTablet = `images/${restaurant.photograph}-tablet.webp`;
-        const srcsetDesktop = `images/${restaurant.photograph}-desktop.webp`;
-        const srcsetFallback = `images/${restaurant.photograph}-tablet.jpg`;
-        const li = document.createElement("li");
-        li.className = "card";
-        li.innerHTML = `
 
 
-        <source media="(min-width: 1024px)" srcset="${srcsetDesktop}" type="image/webp">
+/**
+ * Set neighborhoods HTML.
+ */
+const fillNeighborhoodsHTML = (neighborhoods = (<any>self).neighborhoods) => {
+    const select = document.getElementById('neighborhoods-select');
+    neighborhoods.map((neighborhood: any) => {
+        const option = document.createElement('option');
+        option.innerHTML = neighborhood;
+        option.value = neighborhood;
+        select.appendChild(option);
+
+    });
+
+};
+
+/**
+ * Fetch all cuisines and set their HTML.
+ */
+const fetchCuisines = () => {
+    DBHelper.fetchCuisines((error: any, cuisines: any) => {
+        if (error) { // Got an error!
+            console.error(error);
+        } else {
+            (<any>self).cuisines = cuisines;
+            fillCuisinesHTML();
+        }
+    });
+};
+
+/**
+ * Set cuisines HTML.
+ */
+const fillCuisinesHTML = (cuisines = (<any>self).cuisines) => {
+    const select = document.getElementById('cuisines-select');
+
+    cuisines.forEach((cuisine: any) => {
+        const option = document.createElement('option');
+        option.innerHTML = cuisine;
+        option.value = cuisine;
+        select.appendChild(option);
+    });
+};
+
+/**
+ * Initialize Google map, called from HTML.
+ */
+(<any>window).initMap = () => {
+    const loc = {
+        lat: 40.722216,
+        lng: -73.987501,
+    };
+    (<any>self).map = new google.maps.Map(document.getElementById('map'), {
+        zoom: 12,
+        center: loc,
+        scrollwheel: false,
+    });
+
+    updateRestaurants();
+};
+
+/**
+ * Update page and map for current restaurants.
+ */
+const updateRestaurants = () => {
+    const cSelect = document.getElementById('cuisines-select');
+    const nSelect = document.getElementById('neighborhoods-select');
+
+    const cIndex = (<HTMLSelectElement>cSelect).selectedIndex;
+    const nIndex = (<HTMLSelectElement>nSelect).selectedIndex;
+
+    const cuisine = (<any>cSelect)[cIndex].value;
+    const neighborhood = (<any>nSelect)[nIndex].value;
+
+    DBHelper.fetchRestaurantByCuisineAndNeighborhood(cuisine, neighborhood, (error: any, restaurants: any) => {
+        if (error) { // Got an error!
+            console.error(error);
+        } else {
+            resetRestaurants(restaurants);
+            fillRestaurantsHTML();
+        }
+    });
+};
+
+/**
+ * Clear current restaurants, their HTML and remove their map markers.
+ */
+const resetRestaurants = (restaurants: any) => {
+    // Remove all restaurants
+    (<any>self).restaurants = [];
+    const ul = document.getElementById('restaurants-list');
+    ul.innerHTML = '';
+    ul.className = 'grid';
+
+
+    // Remove all map markers
+    (<any>self).markers.forEach((m: any) => m.setMap(null));
+    (<any>self).markers = [];
+    (<any>self).restaurants = restaurants;
+};
+
+/**
+ * Create all restaurants HTML and add them to the webpage.
+ */
+const fillRestaurantsHTML = (restaurants = (<any>self).restaurants) => {
+    const ul = document.getElementById('restaurants-list');
+    restaurants.forEach((restaurant: any) => {
+        ul.appendChild(createRestaurantHTML(restaurant));
+    });
+    addMarkersToMap();
+};
+
+/**
+ * Create restaurant HTML.
+ */
+const createRestaurantHTML = (restaurant: any) => {
+    const li = document.createElement('li');
+    li.className = 'card';
+    const picture = document.createElement('picture');
+    const srcsetDesktop = `images/${restaurant.photograph}-desktop.webp`;
+    const srcsetTablet = `images/${restaurant.photograph}-tablet.webp`;
+    const srcsetMobile = `images/${restaurant.photograph}-mobile.webp`;
+    const srcsetFallback = `images/${restaurant.photograph}-tablet.jpg`;
+    picture.innerHTML = `<source media="(min-width: 1024px)" srcset="${srcsetDesktop}" type="image/webp">
   <source media="(min-width: 728px)" srcset="${srcsetTablet}" type="image/webp">
   <source media="(max-width: 727px)" srcset="${srcsetMobile}" type="image/webp">
   <source  srcset="${srcsetFallback}" type="image/jpeg">
-  <img src="${srcsetFallback}" class="restaurant-img" alt="${restaurant.name} ${restaurant.cuisine_type} food restaurant New York City">
-        <h3>${restaurant.name}</h3>
-        <p>${restaurant.neighborhood}</p>
-        <p>${restaurant.address}</p>
-        <a href="/restaurant.html?id=${restaurant.id}">View Details</a>
-        `;
-        ul.appendChild(li);
-        const fav = document.createElement('span');
-        const isFav = restaurant.is_favorite;
+  <img src="${srcsetFallback}" class="restaurant-img" alt="${restaurant.name} ${restaurant.cuisine_type} food restaurant New York City">`;
 
-        if (isFav === 'true') {
-            fav.classList.add('yes-fav');
-            fav.classList.remove('no-fav');
-            fav.setAttribute('aria-label', 'marked as favorite');
+    li.appendChild(picture);
+    // TODO PROJECT REVIEW
+    // Correct restaurant's name semantic mistake in index.html
+
+    const name = document.createElement('h3');
+    name.innerHTML = restaurant.name;
+    li.appendChild(name);
+    const fav = document.createElement('span');
+    const isFav = restaurant.is_favorite;
+    if (isFav === 'true') {
+        fav.classList.add('yes-fav');
+        fav.classList.remove('no-fav');
+        fav.setAttribute('aria-label', 'marked as favorite');
+    } else {
+        fav.classList.add('no-fav');
+        fav.classList.remove('yes-fav');
+        fav.setAttribute('aria-label', 'marked as no favorite');
+    }
+
+    function toggleFav() {
+        if (fav.className === 'no-fav') {
+            const url = `http://localhost:1337/restaurants/${restaurant.id}/?is_favorite=true`;
+            fetch(url, {
+                method: 'PUT',
+            }).then(res => res.json())
+                .catch(error => console.error('Error:', error))
+                .then(response => console.log('Success:', response, url));
+            this.classList.replace('no-fav', 'yes-fav');
+            this.removeAttribute('aria-label');
+            this.setAttribute('aria-label', 'marked as favorite');
         } else {
-            fav.classList.add('no-fav');
-            fav.classList.remove('yes-fav');
-            fav.setAttribute('aria-label', 'marked as no favorite');
+            const url = `http://localhost:1337/restaurants/${restaurant.id}/?is_favorite=false`;
+            fetch(url, {
+                method: 'PUT',
+            }).then(res => res.json())
+                .catch(error => console.error('Error:', error))
+                .then(response => console.log('Success:', response, url));
+            this.classList.replace('yes-fav', 'no-fav');
+            this.removeAttribute('aria-label');
+            this.setAttribute('aria-label', 'marked as no favorite');
         }
 
-        function toggleFav() {
-            if (fav.className === 'no-fav') {
-                const url = `http://localhost:1337/restaurants/${restaurant.id}/?is_favorite=true`;
-                fetch(url, {
-                    method: 'PUT',
-                }).then(res => res.json())
-                    .catch(error => console.error('Error:', error))
-                    .then(response => console.log('Success:', response));
-                this.classList.replace('no-fav', 'yes-fav');
-                this.removeAttribute('aria-label');
-                this.setAttribute('aria-label', 'marked as favorite');
-            } else {
-                const url = `http://localhost:1337/restaurants/${restaurant.id}/?is_favorite=false`;
-                fetch(url, {
-                    method: 'PUT',
-                }).then(res => res.json())
-                    .catch(error => console.error('Error:', error))
-                    .then(response => console.log('Success:', response));
-                this.classList.replace('yes-fav', 'no-fav');
-                this.removeAttribute('aria-label');
-                this.setAttribute('aria-label', 'marked as no favorite');
-            }
+
+    }
+    fav.addEventListener('click', toggleFav);
+
+    li.appendChild(fav);
+
+    const neighborhood = document.createElement('p');
+    neighborhood.innerHTML = restaurant.neighborhood;
+    li.appendChild(neighborhood);
 
 
-        }
-        fav.addEventListener('click', toggleFav);
+    const address = document.createElement('p');
+    address.innerHTML = restaurant.address;
+    li.appendChild(address);
 
-        li.appendChild(fav);
+    const more = document.createElement('a');
+    more.innerHTML = 'View Details';
+    more.href = DBHelper.urlForRestaurant(restaurant);
+    const restName = restaurant.name;
+    const cuisine = restaurant.cuisine_type;
+    const location = restaurant.neighborhood;
+    more.setAttribute('aria-label', ` View ${restName} details. ${cuisine} restaurant located in ${location}`);
+    li.appendChild(more);
+
+    return li;
+};
+
+/**
+ * Add markers for current restaurants to the map.
+ */
+const addMarkersToMap = (restaurants = (<any>self).restaurants) => {
+    restaurants.forEach((restaurant: any) => {
+        // Add marker to the map
+        const marker = DBHelper.mapMarkerForRestaurant(restaurant, (<any>self).map);
+        google.maps.event.addListener(marker, 'click', () => {
+            window.location.href = marker.url;
+        });
+        (<any>self).markers.push(marker);
     });
-
 };

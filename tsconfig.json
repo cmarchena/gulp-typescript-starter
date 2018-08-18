@@ -1,5 +1,6 @@
 {
     "files": [
+        "src/assets/js/dbhelper.ts",
         "src/assets/js/restaurant-detail.ts",
         "src/assets/js/index.ts"
     ],

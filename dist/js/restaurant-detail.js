@@ -63,6 +63,7 @@ var requestRestaurant = function () { return __awaiter(_this, void 0, void 0, fu
             case 2:
                 data = _a.sent();
                 restaurant = restaurantDetailsPage(data);
+                console.log(restaurant);
                 return [2 /*return*/, restaurant];
         }
     });
@@ -78,6 +79,7 @@ var requestReviews = function () { return __awaiter(_this, void 0, void 0, funct
             case 2:
                 data = _a.sent();
                 reviews = showReviews(data);
+                console.log(reviews);
                 return [2 /*return*/, reviews];
         }
     });
@@ -86,6 +88,17 @@ document.addEventListener('DOMContentLoaded', function (event) {
     requestRestaurant();
     requestReviews();
 });
+window.initMap = function () {
+    var loc = {
+        lat: 40.722216,
+        lng: -73.987501,
+    };
+    self.map = new google.maps.Map(document.getElementById('map'), {
+        zoom: 12,
+        center: loc,
+        scrollwheel: false,
+    });
+};
 var restaurantDetailsPage = function (restaurant) {
     var breadcrumbs = document.getElementById("breadcrumb-ul");
     breadcrumbs.innerHTML = "\n    <li>\n              <a href=\"/\">Home</a> / " + restaurant.name + "\n            </li>\n    ";
@@ -105,23 +118,23 @@ var restaurantDetailsPage = function (restaurant) {
     }
     function toggleFav() {
         if (fav.className === 'no-fav') {
-            var url_1 = "http://localhost:1337/restaurants/" + id + "/?is_favorite=true";
+            var url_1 = "http://localhost:1337/restaurants/" + restaurant.id + "/?is_favorite=true";
             fetch(url_1, {
                 method: 'PUT',
             }).then(function (res) { return res.json(); })
                 .catch(function (error) { return console.error('Error:', error); })
-                .then(function (response) { return console.log('Success:', response); });
+                .then(function (response) { return console.log('Success:', response, url_1); });
             this.classList.replace('no-fav', 'yes-fav');
             this.removeAttribute('aria-label');
             this.setAttribute('aria-label', 'marked as favorite');
         }
         else {
-            var url_2 = "http://localhost:1337/restaurants/" + id + "/?is_favorite=false";
+            var url_2 = "http://localhost:1337/restaurants/" + restaurant.id + "/?is_favorite=false";
             fetch(url_2, {
                 method: 'PUT',
             }).then(function (res) { return res.json(); })
                 .catch(function (error) { return console.error('Error:', error); })
-                .then(function (response) { return console.log('Success:', response); });
+                .then(function (response) { return console.log('Success:', response, url_2); });
             this.classList.replace('yes-fav', 'no-fav');
             this.removeAttribute('aria-label');
             this.setAttribute('aria-label', 'marked as no favorite');
@@ -154,6 +167,7 @@ var restaurantDetailsPage = function (restaurant) {
     });
 };
 var showReviews = function (reviews) {
+    console.log(reviews);
     var reviewsList = document.getElementById("reviews-list");
     reviews.map(function (review) {
         var li = document.createElement("li");

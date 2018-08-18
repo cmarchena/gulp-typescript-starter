@@ -28,7 +28,7 @@ const AUTOPREFIXER_BROWSERS = [
 ];
 
 var paths = {
-    pages: ['src/*.html', 'src/*.js']
+    pages: ['src/*.html', 'src/*.js','src/*.json']
 };
 var watchedBrowserify = watchify(browserify({
     basedir: '.',

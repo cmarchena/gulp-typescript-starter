@@ -20,28 +20,35 @@ const requestRestaurant = async () => {
     const res = await fetch(`http://localhost:1337/restaurants/${id}`);
     const data = await res.json();
     const restaurant = restaurantDetailsPage(data);
+    console.log(restaurant)
     return restaurant;
 };
-
-
 const requestReviews = async () => {
     const res = await fetch(`http://localhost:1337/reviews?restaurant_id=${id}`);
     const data = await res.json();
     const reviews = showReviews(data);
+    console.log(reviews)
     return reviews;
-
 };
 document.addEventListener('DOMContentLoaded', (event) => {
     requestRestaurant();
     requestReviews();
 });
+(<any>window).initMap = () => {
+    const loc = {
+        lat: 40.722216,
+        lng: -73.987501,
+    };
+    (<any>self).map = new google.maps.Map(document.getElementById('map'), {
+        zoom: 12,
+        center: loc,
+        scrollwheel: false,
+    });
 
-
-
+};
 
 
 const restaurantDetailsPage = (restaurant: any) => {
-
     const breadcrumbs = document.getElementById("breadcrumb-ul");
     breadcrumbs.innerHTML = `
     <li>
@@ -67,22 +74,22 @@ const restaurantDetailsPage = (restaurant: any) => {
     }
     function toggleFav() {
         if (fav.className === 'no-fav') {
-            const url = `http://localhost:1337/restaurants/${id}/?is_favorite=true`;
+            const url = `http://localhost:1337/restaurants/${restaurant.id}/?is_favorite=true`;
             fetch(url, {
                 method: 'PUT',
             }).then(res => res.json())
                 .catch(error => console.error('Error:', error))
-                .then(response => console.log('Success:', response));
+                .then(response => console.log('Success:', response, url));
             this.classList.replace('no-fav', 'yes-fav');
             this.removeAttribute('aria-label');
             this.setAttribute('aria-label', 'marked as favorite');
         } else {
-            const url = `http://localhost:1337/restaurants/${id}/?is_favorite=false`;
+            const url = `http://localhost:1337/restaurants/${restaurant.id}/?is_favorite=false`;
             fetch(url, {
                 method: 'PUT',
             }).then(res => res.json())
                 .catch(error => console.error('Error:', error))
-                .then(response => console.log('Success:', response));
+                .then(response => console.log('Success:', response, url));
             this.classList.replace('yes-fav', 'no-fav');
             this.removeAttribute('aria-label');
             this.setAttribute('aria-label', 'marked as no favorite');
@@ -140,7 +147,7 @@ ${restaurant.cuisine_type}
 
 };
 const showReviews = (reviews: any) => {
-
+    console.log(reviews)
     const reviewsList = document.getElementById("reviews-list");
 
     reviews.map((review: any) => {
