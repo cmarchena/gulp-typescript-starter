@@ -16,23 +16,10 @@
 // End Service Worker
 const url = window.location.href.split("=");
 const id = url[1];
-const requestRestaurant = async () => {
-    const res = await fetch(`http://localhost:1337/restaurants/${id}`);
-    const data = await res.json();
-    const restaurant = restaurantDetailsPage(data);
-    console.log(restaurant)
-    return restaurant;
-};
-const requestReviews = async () => {
-    const res = await fetch(`http://localhost:1337/reviews?restaurant_id=${id}`);
-    const data = await res.json();
-    const reviews = showReviews(data);
-    console.log(reviews)
-    return reviews;
-};
+
 document.addEventListener('DOMContentLoaded', (event) => {
-    requestRestaurant();
-    requestReviews();
+    DBHelper.requestRestaurant();
+    DBHelper.requestReviews();
 });
 (<any>window).initMap = () => {
     const loc = {

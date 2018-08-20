@@ -52,41 +52,9 @@ var _this = this;
 // End Service Worker
 var url = window.location.href.split("=");
 var id = url[1];
-var requestRestaurant = function () { return __awaiter(_this, void 0, void 0, function () {
-    var res, data, restaurant;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
-            case 0: return [4 /*yield*/, fetch("http://localhost:1337/restaurants/" + id)];
-            case 1:
-                res = _a.sent();
-                return [4 /*yield*/, res.json()];
-            case 2:
-                data = _a.sent();
-                restaurant = restaurantDetailsPage(data);
-                console.log(restaurant);
-                return [2 /*return*/, restaurant];
-        }
-    });
-}); };
-var requestReviews = function () { return __awaiter(_this, void 0, void 0, function () {
-    var res, data, reviews;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
-            case 0: return [4 /*yield*/, fetch("http://localhost:1337/reviews?restaurant_id=" + id)];
-            case 1:
-                res = _a.sent();
-                return [4 /*yield*/, res.json()];
-            case 2:
-                data = _a.sent();
-                reviews = showReviews(data);
-                console.log(reviews);
-                return [2 /*return*/, reviews];
-        }
-    });
-}); };
 document.addEventListener('DOMContentLoaded', function (event) {
-    requestRestaurant();
-    requestReviews();
+    DBHelper.requestRestaurant();
+    DBHelper.requestReviews();
 });
 window.initMap = function () {
     var loc = {

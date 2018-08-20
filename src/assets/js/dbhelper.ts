@@ -1,4 +1,5 @@
 declare var google: any;
+declare var idb: any;
 class DBHelper {
 
 
@@ -22,6 +23,20 @@ class DBHelper {
 
     };
 
+    static requestRestaurant = async () => {
+        const res = await fetch(`http://localhost:1337/restaurants/${id}`);
+        const data = await res.json();
+        const restaurant = restaurantDetailsPage(data);
+        console.log(restaurant)
+        return restaurant;
+    };
+    static requestReviews = async () => {
+        const res = await fetch(`http://localhost:1337/reviews?restaurant_id=${id}`);
+        const data = await res.json();
+        const reviews = showReviews(data);
+        console.log(reviews)
+        return reviews;
+    };
 
 
     static fetchRestaurantByCuisine(cuisine: any, callback: any) {
@@ -108,6 +123,21 @@ class DBHelper {
             animation: google.maps.Animation.DROP,
         });
         return marker;
+    }
+    static dbPromise() {
+        return idb.open('db', 2, function (upgradeDb: any) {
+            switch (upgradeDb.oldVersion) {
+                case 0:
+                    upgradeDb.createObjectStore('restaurants', {
+                        keyPath: 'id'
+                    });
+                case 1:
+                    const reviews = upgradeDb.createObjectStore('reviews', {
+                        keyPath: 'id'
+                    });
+                    reviews.createIndex('restaurant', 'restaurant_id')
+            }
+        });
     }
 
 }

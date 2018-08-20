@@ -2,7 +2,8 @@
     "files": [
         "src/assets/js/dbhelper.ts",
         "src/assets/js/restaurant-detail.ts",
-        "src/assets/js/index.ts"
+        "src/assets/js/index.ts",
+        "src/assets/js/idb.ts"
     ],
     "compilerOptions": {
         "noImplicitAny": true,

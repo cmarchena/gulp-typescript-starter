@@ -134,6 +134,21 @@ var DBHelper = /** @class */ (function () {
         });
         return marker;
     };
+    DBHelper.dbPromise = function () {
+        return idb.open('db', 2, function (upgradeDb) {
+            switch (upgradeDb.oldVersion) {
+                case 0:
+                    upgradeDb.createObjectStore('restaurants', {
+                        keyPath: 'id'
+                    });
+                case 1:
+                    var reviews = upgradeDb.createObjectStore('reviews', {
+                        keyPath: 'id'
+                    });
+                    reviews.createIndex('restaurant', 'restaurant_id');
+            }
+        });
+    };
     DBHelper.requestRestaurants = function (callback) { return __awaiter(_this, void 0, void 0, function () {
         var getRestaurants, res, data, restaurants_1;
         return __generator(this, function (_a) {
@@ -153,6 +168,38 @@ var DBHelper = /** @class */ (function () {
                     restaurants_1 = getRestaurants(data);
                     return [2 /*return*/, restaurants_1];
                 case 3: throw new Error("" + res.status);
+            }
+        });
+    }); };
+    DBHelper.requestRestaurant = function () { return __awaiter(_this, void 0, void 0, function () {
+        var res, data, restaurant;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, fetch("http://localhost:1337/restaurants/" + id)];
+                case 1:
+                    res = _a.sent();
+                    return [4 /*yield*/, res.json()];
+                case 2:
+                    data = _a.sent();
+                    restaurant = restaurantDetailsPage(data);
+                    console.log(restaurant);
+                    return [2 /*return*/, restaurant];
+            }
+        });
+    }); };
+    DBHelper.requestReviews = function () { return __awaiter(_this, void 0, void 0, function () {
+        var res, data, reviews;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, fetch("http://localhost:1337/reviews?restaurant_id=" + id)];
+                case 1:
+                    res = _a.sent();
+                    return [4 /*yield*/, res.json()];
+                case 2:
+                    data = _a.sent();
+                    reviews = showReviews(data);
+                    console.log(reviews);
+                    return [2 /*return*/, reviews];
             }
         });
     }); };
