@@ -1,3 +1,4 @@
+"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
@@ -34,6 +35,8 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 var _this = this;
+Object.defineProperty(exports, "__esModule", { value: true });
+var idb_1 = require("idb");
 var DBHelper = /** @class */ (function () {
     function DBHelper() {
     }
@@ -45,134 +48,37 @@ var DBHelper = /** @class */ (function () {
         enumerable: true,
         configurable: true
     });
-    DBHelper.fetchRestaurantByCuisine = function (cuisine, callback) {
-        // Fetch all restaurants  with proper error handling
-        DBHelper.requestRestaurants(function (error, restaurants) {
-            if (error) {
-                callback(error, null);
-            }
-            else {
-                // Filter restaurants to have only given cuisine type
-                var results = restaurants.filter(function (r) { return r.cuisine_type == cuisine; });
-                callback(null, results);
-            }
-        });
-    };
-    DBHelper.fetchRestaurantByNeighborhood = function (neighborhood, callback) {
-        // Fetch all restaurants
-        DBHelper.requestRestaurants(function (error, restaurants) {
-            if (error) {
-                callback(error, null);
-            }
-            else {
-                // Filter restaurants to have only given neighborhood
-                var results = restaurants.filter(function (r) { return r.neighborhood == neighborhood; });
-                callback(null, results);
-            }
-        });
-    };
-    DBHelper.fetchRestaurantByCuisineAndNeighborhood = function (cuisine, neighborhood, callback) {
-        // Fetch all restaurants
-        DBHelper.requestRestaurants(function (error, restaurants) {
-            if (error) {
-                callback(error, null);
-            }
-            else {
-                var results = restaurants;
-                if (cuisine != 'all') { // filter by cuisine
-                    results = results.filter(function (r) { return r.cuisine_type == cuisine; });
-                }
-                if (neighborhood != 'all') { // filter by neighborhood
-                    results = results.filter(function (r) { return r.neighborhood == neighborhood; });
-                }
-                callback(null, results);
-            }
-        });
-    };
-    DBHelper.fetchNeighborhoods = function (callback) {
-        // Fetch all restaurants
-        DBHelper.requestRestaurants(function (error, restaurants) {
-            if (error) {
-                callback(error, null);
-            }
-            else {
-                // Get all neighborhoods from all restaurants
-                var neighborhoods_1 = restaurants.map(function (restaurant) { return restaurant.neighborhood; });
-                // Remove duplicates from neighborhoods;
-                var neighborhoodSet = new Set(neighborhoods_1);
-                var uniqueNeighborhoods = Array.from(neighborhoodSet);
-                callback(null, uniqueNeighborhoods);
-            }
-        });
-    };
-    DBHelper.fetchCuisines = function (callback) {
-        // Fetch all restaurants
-        DBHelper.requestRestaurants(function (error, restaurants) {
-            if (error) {
-                callback(error, null);
-            }
-            else {
-                // Get all cuisines from all restaurants
-                var cuisines_1 = restaurants.map(function (restaurant) { return restaurant.cuisine_type; });
-                // Remove duplicates from cuisines
-                var cuisinesSet = new Set(cuisines_1);
-                var uniqueCuisines = Array.from(cuisinesSet);
-                callback(null, uniqueCuisines);
-            }
-        });
-    };
-    DBHelper.urlForRestaurant = function (restaurant) {
-        return ("./restaurant.html?id=" + restaurant.id);
-    };
-    DBHelper.mapMarkerForRestaurant = function (restaurant, map) {
-        var marker = new google.maps.Marker({
-            position: restaurant.latlng,
-            title: restaurant.name,
-            url: DBHelper.urlForRestaurant(restaurant),
-            map: map,
-            animation: google.maps.Animation.DROP,
-        });
-        return marker;
-    };
-    DBHelper.dbPromise = function () {
-        return idb.open('db', 2, function (upgradeDb) {
-            switch (upgradeDb.oldVersion) {
-                case 0:
-                    upgradeDb.createObjectStore('restaurants', {
-                        keyPath: 'id'
-                    });
-                case 1:
-                    var reviews = upgradeDb.createObjectStore('reviews', {
-                        keyPath: 'id'
-                    });
-                    reviews.createIndex('restaurant', 'restaurant_id');
-            }
-        });
-    };
-    DBHelper.requestRestaurants = function (callback) { return __awaiter(_this, void 0, void 0, function () {
-        var getRestaurants, res, data, restaurants_1;
+    DBHelper.requestRestaurants = function () { return __awaiter(_this, void 0, void 0, function () {
+        var res, restaurants;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0:
-                    getRestaurants = function (data) {
-                        var restaurants = data;
-                        callback(null, restaurants);
-                    };
-                    return [4 /*yield*/, fetch(DBHelper.DATABASE_URL + "/restaurants")];
+                case 0: return [4 /*yield*/, fetch(DBHelper.DATABASE_URL + "/restaurants")];
                 case 1:
                     res = _a.sent();
-                    if (!(res.status == 200)) return [3 /*break*/, 3];
                     return [4 /*yield*/, res.json()];
                 case 2:
-                    data = _a.sent();
-                    restaurants_1 = getRestaurants(data);
-                    return [2 /*return*/, restaurants_1];
-                case 3: throw new Error("" + res.status);
+                    restaurants = _a.sent();
+                    console.log(restaurants);
+                    return [2 /*return*/, restaurants];
             }
         });
     }); };
-    DBHelper.requestRestaurant = function () { return __awaiter(_this, void 0, void 0, function () {
-        var res, data, restaurant;
+    /* static requestRestaurants = async (callback: any) => {
+        const getRestaurants = (data: any) => {
+            const restaurants = data;
+            callback(null, restaurants);
+        }
+        let res = await fetch(`${DBHelper.DATABASE_URL}/restaurants`);
+        if (res.status == 200) {
+            let data = await res.json();
+            const restaurants = getRestaurants(data);
+            return restaurants;
+        }
+        throw new Error(`${res.status}`)
+
+    }; */
+    DBHelper.requestRestaurant = function (id) { return __awaiter(_this, void 0, void 0, function () {
+        var res, restaurant;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0: return [4 /*yield*/, fetch("http://localhost:1337/restaurants/" + id)];
@@ -180,15 +86,22 @@ var DBHelper = /** @class */ (function () {
                     res = _a.sent();
                     return [4 /*yield*/, res.json()];
                 case 2:
-                    data = _a.sent();
-                    restaurant = restaurantDetailsPage(data);
+                    restaurant = _a.sent();
                     console.log(restaurant);
                     return [2 /*return*/, restaurant];
             }
         });
     }); };
-    DBHelper.requestReviews = function () { return __awaiter(_this, void 0, void 0, function () {
-        var res, data, reviews;
+    /*
+    static requestRestaurant = async () => {
+        const res = await fetch(`http://localhost:1337/restaurants/${id}`);
+        const data = await res.json();
+        const restaurant = restaurantDetailsPage(data);
+        console.log(restaurant)
+        return restaurant;
+    }; */
+    DBHelper.requestReviews = function (id) { return __awaiter(_this, void 0, void 0, function () {
+        var res, reviews;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0: return [4 /*yield*/, fetch("http://localhost:1337/reviews?restaurant_id=" + id)];
@@ -196,8 +109,7 @@ var DBHelper = /** @class */ (function () {
                     res = _a.sent();
                     return [4 /*yield*/, res.json()];
                 case 2:
-                    data = _a.sent();
-                    reviews = showReviews(data);
+                    reviews = _a.sent();
                     console.log(reviews);
                     return [2 /*return*/, reviews];
             }
@@ -205,3 +117,32 @@ var DBHelper = /** @class */ (function () {
     }); };
     return DBHelper;
 }());
+var getRestaurantsName = function () {
+    DBHelper.requestRestaurants().then(function (restaurants) {
+        restaurants.map(function (restaurant) {
+            console.log(restaurant.name);
+        });
+    })
+        .catch(function (err) {
+        var section = document.createElement("section");
+        section.innerHTML = "<div class=\"error\">There is a network connection problem. Please Retry later.\n        Error Code: " + err + "</div>";
+        document.body.appendChild(section);
+    });
+};
+var getReviewList = function (id) {
+    DBHelper.requestReviews(id).then(function (reviewList) { return reviewList.map(function (review) {
+        console.log(review.comments);
+    }); });
+};
+document.addEventListener("DOMContentLoaded", function (event) {
+    dbPromise;
+    DBHelper.requestRestaurant(2);
+    getReviewList(2);
+    getRestaurantsName();
+});
+/* const dbPromise = idb.open("db-test", 1, (upgradeDb) => {
+    const keyValStore = upgradeDb.createObjectStore('keyval');
+    keyValStore.put('Caracola', 'Hola')
+}); */
+var dbPromise = idb_1.default.open('test', 1, function (upgradeDb) {
+});

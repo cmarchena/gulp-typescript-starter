@@ -23,7 +23,7 @@ const markers = [];
 /**
  * Fetch neighborhoods and cuisines as soon as the page is loaded.
  */
-document.addEventListener('DOMContentLoaded', (event) => {
+document.addEventListener("DOMContentLoaded", (event) => {
     fetchNeighborhoods();
     fetchCuisines();
 });
@@ -37,20 +37,19 @@ const fetchNeighborhoods = () => {
         if (error) { // Got an error
             console.error(error);
         } else {
-            (<any>self).neighborhoods = neighborhoods;
+            (self as any).neighborhoods = neighborhoods;
             fillNeighborhoodsHTML();
         }
     });
-}
-
+};
 
 /**
  * Set neighborhoods HTML.
  */
-const fillNeighborhoodsHTML = (neighborhoods = (<any>self).neighborhoods) => {
-    const select = document.getElementById('neighborhoods-select');
+const fillNeighborhoodsHTML = (neighborhoods = (self as any).neighborhoods) => {
+    const select = document.getElementById("neighborhoods-select");
     neighborhoods.map((neighborhood: any) => {
-        const option = document.createElement('option');
+        const option = document.createElement("option");
         option.innerHTML = neighborhood;
         option.value = neighborhood;
         select.appendChild(option);
@@ -67,7 +66,7 @@ const fetchCuisines = () => {
         if (error) { // Got an error!
             console.error(error);
         } else {
-            (<any>self).cuisines = cuisines;
+            (self as any).cuisines = cuisines;
             fillCuisinesHTML();
         }
     });
@@ -76,11 +75,11 @@ const fetchCuisines = () => {
 /**
  * Set cuisines HTML.
  */
-const fillCuisinesHTML = (cuisines = (<any>self).cuisines) => {
-    const select = document.getElementById('cuisines-select');
+const fillCuisinesHTML = (cuisines = (self as any).cuisines) => {
+    const select = document.getElementById("cuisines-select");
 
     cuisines.forEach((cuisine: any) => {
-        const option = document.createElement('option');
+        const option = document.createElement("option");
         option.innerHTML = cuisine;
         option.value = cuisine;
         select.appendChild(option);
@@ -90,12 +89,12 @@ const fillCuisinesHTML = (cuisines = (<any>self).cuisines) => {
 /**
  * Initialize Google map, called from HTML.
  */
-(<any>window).initMap = () => {
+(window as any).initMap = () => {
     const loc = {
         lat: 40.722216,
         lng: -73.987501,
     };
-    (<any>self).map = new google.maps.Map(document.getElementById('map'), {
+    (self as any).map = new google.maps.Map(document.getElementById("map"), {
         zoom: 12,
         center: loc,
         scrollwheel: false,
@@ -108,14 +107,14 @@ const fillCuisinesHTML = (cuisines = (<any>self).cuisines) => {
  * Update page and map for current restaurants.
  */
 const updateRestaurants = () => {
-    const cSelect = document.getElementById('cuisines-select');
-    const nSelect = document.getElementById('neighborhoods-select');
+    const cSelect = document.getElementById("cuisines-select");
+    const nSelect = document.getElementById("neighborhoods-select");
 
-    const cIndex = (<HTMLSelectElement>cSelect).selectedIndex;
-    const nIndex = (<HTMLSelectElement>nSelect).selectedIndex;
+    const cIndex = (cSelect as HTMLSelectElement).selectedIndex;
+    const nIndex = (nSelect as HTMLSelectElement).selectedIndex;
 
-    const cuisine = (<any>cSelect)[cIndex].value;
-    const neighborhood = (<any>nSelect)[nIndex].value;
+    const cuisine = (cSelect as any)[cIndex].value;
+    const neighborhood = (nSelect as any)[nIndex].value;
 
     DBHelper.fetchRestaurantByCuisineAndNeighborhood(cuisine, neighborhood, (error: any, restaurants: any) => {
         if (error) { // Got an error!
@@ -132,23 +131,22 @@ const updateRestaurants = () => {
  */
 const resetRestaurants = (restaurants: any) => {
     // Remove all restaurants
-    (<any>self).restaurants = [];
-    const ul = document.getElementById('restaurants-list');
-    ul.innerHTML = '';
-    ul.className = 'grid';
-
+    (self as any).restaurants = [];
+    const ul = document.getElementById("restaurants-list");
+    ul.innerHTML = "";
+    ul.className = "grid";
 
     // Remove all map markers
-    (<any>self).markers.forEach((m: any) => m.setMap(null));
-    (<any>self).markers = [];
-    (<any>self).restaurants = restaurants;
+    (self as any).markers.forEach((m: any) => m.setMap(null));
+    (self as any).markers = [];
+    (self as any).restaurants = restaurants;
 };
 
 /**
  * Create all restaurants HTML and add them to the webpage.
  */
-const fillRestaurantsHTML = (restaurants = (<any>self).restaurants) => {
-    const ul = document.getElementById('restaurants-list');
+const fillRestaurantsHTML = (restaurants = (self as any).restaurants) => {
+    const ul = document.getElementById("restaurants-list");
     restaurants.forEach((restaurant: any) => {
         ul.appendChild(createRestaurantHTML(restaurant));
     });
@@ -159,9 +157,9 @@ const fillRestaurantsHTML = (restaurants = (<any>self).restaurants) => {
  * Create restaurant HTML.
  */
 const createRestaurantHTML = (restaurant: any) => {
-    const li = document.createElement('li');
-    li.className = 'card';
-    const picture = document.createElement('picture');
+    const li = document.createElement("li");
+    li.className = "card";
+    const picture = document.createElement("picture");
     const srcsetDesktop = `images/${restaurant.photograph}-desktop.webp`;
     const srcsetTablet = `images/${restaurant.photograph}-tablet.webp`;
     const srcsetMobile = `images/${restaurant.photograph}-mobile.webp`;
@@ -176,66 +174,64 @@ const createRestaurantHTML = (restaurant: any) => {
     // TODO PROJECT REVIEW
     // Correct restaurant's name semantic mistake in index.html
 
-    const name = document.createElement('h3');
+    const name = document.createElement("h3");
     name.innerHTML = restaurant.name;
     li.appendChild(name);
-    const fav = document.createElement('span');
+    const fav = document.createElement("span");
     const isFav = restaurant.is_favorite;
-    if (isFav === 'true') {
-        fav.classList.add('yes-fav');
-        fav.classList.remove('no-fav');
-        fav.setAttribute('aria-label', 'marked as favorite');
+    if (isFav === "true") {
+        fav.classList.add("yes-fav");
+        fav.classList.remove("no-fav");
+        fav.setAttribute("aria-label", "marked as favorite");
     } else {
-        fav.classList.add('no-fav');
-        fav.classList.remove('yes-fav');
-        fav.setAttribute('aria-label', 'marked as no favorite');
+        fav.classList.add("no-fav");
+        fav.classList.remove("yes-fav");
+        fav.setAttribute("aria-label", "marked as no favorite");
     }
 
     function toggleFav() {
-        if (fav.className === 'no-fav') {
+        if (fav.className === "no-fav") {
             const url = `http://localhost:1337/restaurants/${restaurant.id}/?is_favorite=true`;
             fetch(url, {
-                method: 'PUT',
-            }).then(res => res.json())
-                .catch(error => console.error('Error:', error))
-                .then(response => console.log('Success:', response, url));
-            this.classList.replace('no-fav', 'yes-fav');
-            this.removeAttribute('aria-label');
-            this.setAttribute('aria-label', 'marked as favorite');
+                method: "PUT",
+            }).then((res) => res.json())
+                .catch((error) => console.error("Error:", error))
+                .then((response) => console.log("Success:", response, url));
+            this.classList.replace("no-fav", "yes-fav");
+            this.removeAttribute("aria-label");
+            this.setAttribute("aria-label", "marked as favorite");
         } else {
             const url = `http://localhost:1337/restaurants/${restaurant.id}/?is_favorite=false`;
             fetch(url, {
-                method: 'PUT',
-            }).then(res => res.json())
-                .catch(error => console.error('Error:', error))
-                .then(response => console.log('Success:', response, url));
-            this.classList.replace('yes-fav', 'no-fav');
-            this.removeAttribute('aria-label');
-            this.setAttribute('aria-label', 'marked as no favorite');
+                method: "PUT",
+            }).then((res) => res.json())
+                .catch((error) => console.error("Error:", error))
+                .then((response) => console.log("Success:", response, url));
+            this.classList.replace("yes-fav", "no-fav");
+            this.removeAttribute("aria-label");
+            this.setAttribute("aria-label", "marked as no favorite");
         }
 
-
     }
-    fav.addEventListener('click', toggleFav);
+    fav.addEventListener("click", toggleFav);
 
     li.appendChild(fav);
 
-    const neighborhood = document.createElement('p');
+    const neighborhood = document.createElement("p");
     neighborhood.innerHTML = restaurant.neighborhood;
     li.appendChild(neighborhood);
 
-
-    const address = document.createElement('p');
+    const address = document.createElement("p");
     address.innerHTML = restaurant.address;
     li.appendChild(address);
 
-    const more = document.createElement('a');
-    more.innerHTML = 'View Details';
+    const more = document.createElement("a");
+    more.innerHTML = "View Details";
     more.href = DBHelper.urlForRestaurant(restaurant);
     const restName = restaurant.name;
     const cuisine = restaurant.cuisine_type;
     const location = restaurant.neighborhood;
-    more.setAttribute('aria-label', ` View ${restName} details. ${cuisine} restaurant located in ${location}`);
+    more.setAttribute("aria-label", ` View ${restName} details. ${cuisine} restaurant located in ${location}`);
     li.appendChild(more);
 
     return li;
@@ -244,13 +240,13 @@ const createRestaurantHTML = (restaurant: any) => {
 /**
  * Add markers for current restaurants to the map.
  */
-const addMarkersToMap = (restaurants = (<any>self).restaurants) => {
+const addMarkersToMap = (restaurants = (self as any).restaurants) => {
     restaurants.forEach((restaurant: any) => {
         // Add marker to the map
-        const marker = DBHelper.mapMarkerForRestaurant(restaurant, (<any>self).map);
-        google.maps.event.addListener(marker, 'click', () => {
+        const marker = DBHelper.mapMarkerForRestaurant(restaurant, (self as any).map);
+        google.maps.event.addListener(marker, "click", () => {
             window.location.href = marker.url;
         });
-        (<any>self).markers.push(marker);
+        (self as any).markers.push(marker);
     });
 };

@@ -17,23 +17,22 @@
 const url = window.location.href.split("=");
 const id = url[1];
 
-document.addEventListener('DOMContentLoaded', (event) => {
+document.addEventListener("DOMContentLoaded", (event) => {
     DBHelper.requestRestaurant();
     DBHelper.requestReviews();
 });
-(<any>window).initMap = () => {
+(window as any).initMap = () => {
     const loc = {
         lat: 40.722216,
         lng: -73.987501,
     };
-    (<any>self).map = new google.maps.Map(document.getElementById('map'), {
+    (self as any).map = new google.maps.Map(document.getElementById("map"), {
         zoom: 12,
         center: loc,
         scrollwheel: false,
     });
 
 };
-
 
 const restaurantDetailsPage = (restaurant: any) => {
     const breadcrumbs = document.getElementById("breadcrumb-ul");
@@ -47,44 +46,43 @@ const restaurantDetailsPage = (restaurant: any) => {
     ${restaurant.name}
     `;
 
-    const fav = document.createElement('span');
+    const fav = document.createElement("span");
     const isFav = restaurant.is_favorite;
 
-    if (isFav === 'true') {
-        fav.classList.add('yes-fav');
-        fav.classList.remove('no-fav');
-        fav.setAttribute('aria-label', 'marked as favorite');
+    if (isFav === "true") {
+        fav.classList.add("yes-fav");
+        fav.classList.remove("no-fav");
+        fav.setAttribute("aria-label", "marked as favorite");
     } else {
-        fav.classList.add('no-fav');
-        fav.classList.remove('yes-fav');
-        fav.setAttribute('aria-label', 'marked as no favorite');
+        fav.classList.add("no-fav");
+        fav.classList.remove("yes-fav");
+        fav.setAttribute("aria-label", "marked as no favorite");
     }
     function toggleFav() {
-        if (fav.className === 'no-fav') {
+        if (fav.className === "no-fav") {
             const url = `http://localhost:1337/restaurants/${restaurant.id}/?is_favorite=true`;
             fetch(url, {
-                method: 'PUT',
-            }).then(res => res.json())
-                .catch(error => console.error('Error:', error))
-                .then(response => console.log('Success:', response, url));
-            this.classList.replace('no-fav', 'yes-fav');
-            this.removeAttribute('aria-label');
-            this.setAttribute('aria-label', 'marked as favorite');
+                method: "PUT",
+            }).then((res) => res.json())
+                .catch((error) => console.error("Error:", error))
+                .then((response) => console.log("Success:", response, url));
+            this.classList.replace("no-fav", "yes-fav");
+            this.removeAttribute("aria-label");
+            this.setAttribute("aria-label", "marked as favorite");
         } else {
             const url = `http://localhost:1337/restaurants/${restaurant.id}/?is_favorite=false`;
             fetch(url, {
-                method: 'PUT',
-            }).then(res => res.json())
-                .catch(error => console.error('Error:', error))
-                .then(response => console.log('Success:', response, url));
-            this.classList.replace('yes-fav', 'no-fav');
-            this.removeAttribute('aria-label');
-            this.setAttribute('aria-label', 'marked as no favorite');
+                method: "PUT",
+            }).then((res) => res.json())
+                .catch((error) => console.error("Error:", error))
+                .then((response) => console.log("Success:", response, url));
+            this.classList.replace("yes-fav", "no-fav");
+            this.removeAttribute("aria-label");
+            this.setAttribute("aria-label", "marked as no favorite");
         }
 
-
     }
-    fav.addEventListener('click', toggleFav);
+    fav.addEventListener("click", toggleFav);
 
     name.appendChild(fav);
     const picture = document.getElementById("restaurant-picture");
@@ -94,7 +92,7 @@ const restaurantDetailsPage = (restaurant: any) => {
     const srcsetFallback = `images/${restaurant.photograph}-desktop.jpg`;
 
     picture.innerHTML = `
-    
+
   <source media="(min-width: 728px)" srcset="${srcsetDesktop}" type="image/webp">
   <source media="(max-width: 727px)" srcset="${srcsetMobile}" type="image/webp">
   <source  srcset="${srcsetFallback}" type="image/jpeg">
@@ -116,25 +114,23 @@ ${restaurant.cuisine_type}
 
     const thead = document.createElement("tr");
     thead.innerHTML = `<tr><th class="white-text">Opening Hours</th></tr>`;
-    table.appendChild(thead)
-    result.map(cell => {
+    table.appendChild(thead);
+    result.map((cell) => {
 
         const tr = document.createElement("tr");
         tr.innerHTML = `
     <td>${cell.day}</td>
     <td>${cell.hours}</td>
-    
-    `
 
-        table.appendChild(tr)
+    `;
 
-    })
+        table.appendChild(tr);
 
-
+    });
 
 };
 const showReviews = (reviews: any) => {
-    console.log(reviews)
+    console.log(reviews);
     const reviewsList = document.getElementById("reviews-list");
 
     reviews.map((review: any) => {
@@ -143,48 +139,46 @@ const showReviews = (reviews: any) => {
 
         <p><strong>Author</strong>: ${review.name} <span class="left"><strong>        Rating</strong>: ${review.rating}  </span> </p>
         <p>${review.comments}</p>
-`
+`;
         reviewsList.appendChild(li);
 
-    })
-
+    });
 
 };
-document.getElementById('review-form').addEventListener('input', (event) => {
-    console.log((<HTMLInputElement>event.target).value)
-})
+document.getElementById("review-form").addEventListener("input", (event) => {
+    console.log((event.target as HTMLInputElement).value);
+});
 const addReview = (e: any) => {
-    let name = (<HTMLInputElement>document.getElementById('review-author')).value;
-    let rating = (<HTMLSelectElement>document.getElementById('rating_select')).value;
-    let comments = (<HTMLTextAreaElement>document.getElementById('review-comments')).value;
+    const name = (document.getElementById("review-author") as HTMLInputElement).value;
+    const rating = (document.getElementById("rating_select") as HTMLSelectElement).value;
+    const comments = (document.getElementById("review-comments") as HTMLTextAreaElement).value;
     const url = "http://localhost:1337/reviews";
     const NEW_REVIEW = async () => {
         const data = {
-            "restaurant_id": id,
-            "name": name,
-            "rating": rating,
-            "comments": comments
-        }
+            restaurant_id: id,
+            name: name,
+            rating: rating,
+            comments: comments,
+        };
         const res = await fetch(url, {
-            method: 'POST',
+            method: "POST",
             body: JSON.stringify(data),
             headers: {
-                'Content-Type': 'application/json'
-            }
+                "Content-Type": "application/json",
+            },
         });
         const json = await res.json();
-        const success = console.log('Success:', json);
+        const success = console.log("Success:", json);
         return success;
-    }
-    NEW_REVIEW().catch(error => console.error('Error:', error))
+    };
+    NEW_REVIEW().catch((error) => console.error("Error:", error));
     alert("Review created successfully!");
     window.location.reload();
-}
+};
 
-
-const form = document.getElementById('review-form')
+const form = document.getElementById("review-form");
 form.addEventListener("submit", (e) => {
     e.preventDefault();
-    addReview(e)
+    addReview(e);
 
-})
+});

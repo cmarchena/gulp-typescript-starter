@@ -22,7 +22,7 @@ var markers = [];
 /**
  * Fetch neighborhoods and cuisines as soon as the page is loaded.
  */
-document.addEventListener('DOMContentLoaded', function (event) {
+document.addEventListener("DOMContentLoaded", function (event) {
     fetchNeighborhoods();
     fetchCuisines();
 });
@@ -45,9 +45,9 @@ var fetchNeighborhoods = function () {
  */
 var fillNeighborhoodsHTML = function (neighborhoods) {
     if (neighborhoods === void 0) { neighborhoods = self.neighborhoods; }
-    var select = document.getElementById('neighborhoods-select');
+    var select = document.getElementById("neighborhoods-select");
     neighborhoods.map(function (neighborhood) {
-        var option = document.createElement('option');
+        var option = document.createElement("option");
         option.innerHTML = neighborhood;
         option.value = neighborhood;
         select.appendChild(option);
@@ -72,9 +72,9 @@ var fetchCuisines = function () {
  */
 var fillCuisinesHTML = function (cuisines) {
     if (cuisines === void 0) { cuisines = self.cuisines; }
-    var select = document.getElementById('cuisines-select');
+    var select = document.getElementById("cuisines-select");
     cuisines.forEach(function (cuisine) {
-        var option = document.createElement('option');
+        var option = document.createElement("option");
         option.innerHTML = cuisine;
         option.value = cuisine;
         select.appendChild(option);
@@ -88,7 +88,7 @@ window.initMap = function () {
         lat: 40.722216,
         lng: -73.987501,
     };
-    self.map = new google.maps.Map(document.getElementById('map'), {
+    self.map = new google.maps.Map(document.getElementById("map"), {
         zoom: 12,
         center: loc,
         scrollwheel: false,
@@ -99,8 +99,8 @@ window.initMap = function () {
  * Update page and map for current restaurants.
  */
 var updateRestaurants = function () {
-    var cSelect = document.getElementById('cuisines-select');
-    var nSelect = document.getElementById('neighborhoods-select');
+    var cSelect = document.getElementById("cuisines-select");
+    var nSelect = document.getElementById("neighborhoods-select");
     var cIndex = cSelect.selectedIndex;
     var nIndex = nSelect.selectedIndex;
     var cuisine = cSelect[cIndex].value;
@@ -121,9 +121,9 @@ var updateRestaurants = function () {
 var resetRestaurants = function (restaurants) {
     // Remove all restaurants
     self.restaurants = [];
-    var ul = document.getElementById('restaurants-list');
-    ul.innerHTML = '';
-    ul.className = 'grid';
+    var ul = document.getElementById("restaurants-list");
+    ul.innerHTML = "";
+    ul.className = "grid";
     // Remove all map markers
     self.markers.forEach(function (m) { return m.setMap(null); });
     self.markers = [];
@@ -134,7 +134,7 @@ var resetRestaurants = function (restaurants) {
  */
 var fillRestaurantsHTML = function (restaurants) {
     if (restaurants === void 0) { restaurants = self.restaurants; }
-    var ul = document.getElementById('restaurants-list');
+    var ul = document.getElementById("restaurants-list");
     restaurants.forEach(function (restaurant) {
         ul.appendChild(createRestaurantHTML(restaurant));
     });
@@ -144,9 +144,9 @@ var fillRestaurantsHTML = function (restaurants) {
  * Create restaurant HTML.
  */
 var createRestaurantHTML = function (restaurant) {
-    var li = document.createElement('li');
-    li.className = 'card';
-    var picture = document.createElement('picture');
+    var li = document.createElement("li");
+    li.className = "card";
+    var picture = document.createElement("picture");
     var srcsetDesktop = "images/" + restaurant.photograph + "-desktop.webp";
     var srcsetTablet = "images/" + restaurant.photograph + "-tablet.webp";
     var srcsetMobile = "images/" + restaurant.photograph + "-mobile.webp";
@@ -155,60 +155,60 @@ var createRestaurantHTML = function (restaurant) {
     li.appendChild(picture);
     // TODO PROJECT REVIEW
     // Correct restaurant's name semantic mistake in index.html
-    var name = document.createElement('h3');
+    var name = document.createElement("h3");
     name.innerHTML = restaurant.name;
     li.appendChild(name);
-    var fav = document.createElement('span');
+    var fav = document.createElement("span");
     var isFav = restaurant.is_favorite;
-    if (isFav === 'true') {
-        fav.classList.add('yes-fav');
-        fav.classList.remove('no-fav');
-        fav.setAttribute('aria-label', 'marked as favorite');
+    if (isFav === "true") {
+        fav.classList.add("yes-fav");
+        fav.classList.remove("no-fav");
+        fav.setAttribute("aria-label", "marked as favorite");
     }
     else {
-        fav.classList.add('no-fav');
-        fav.classList.remove('yes-fav');
-        fav.setAttribute('aria-label', 'marked as no favorite');
+        fav.classList.add("no-fav");
+        fav.classList.remove("yes-fav");
+        fav.setAttribute("aria-label", "marked as no favorite");
     }
     function toggleFav() {
-        if (fav.className === 'no-fav') {
+        if (fav.className === "no-fav") {
             var url_1 = "http://localhost:1337/restaurants/" + restaurant.id + "/?is_favorite=true";
             fetch(url_1, {
-                method: 'PUT',
+                method: "PUT",
             }).then(function (res) { return res.json(); })
-                .catch(function (error) { return console.error('Error:', error); })
-                .then(function (response) { return console.log('Success:', response, url_1); });
-            this.classList.replace('no-fav', 'yes-fav');
-            this.removeAttribute('aria-label');
-            this.setAttribute('aria-label', 'marked as favorite');
+                .catch(function (error) { return console.error("Error:", error); })
+                .then(function (response) { return console.log("Success:", response, url_1); });
+            this.classList.replace("no-fav", "yes-fav");
+            this.removeAttribute("aria-label");
+            this.setAttribute("aria-label", "marked as favorite");
         }
         else {
             var url_2 = "http://localhost:1337/restaurants/" + restaurant.id + "/?is_favorite=false";
             fetch(url_2, {
-                method: 'PUT',
+                method: "PUT",
             }).then(function (res) { return res.json(); })
-                .catch(function (error) { return console.error('Error:', error); })
-                .then(function (response) { return console.log('Success:', response, url_2); });
-            this.classList.replace('yes-fav', 'no-fav');
-            this.removeAttribute('aria-label');
-            this.setAttribute('aria-label', 'marked as no favorite');
+                .catch(function (error) { return console.error("Error:", error); })
+                .then(function (response) { return console.log("Success:", response, url_2); });
+            this.classList.replace("yes-fav", "no-fav");
+            this.removeAttribute("aria-label");
+            this.setAttribute("aria-label", "marked as no favorite");
         }
     }
-    fav.addEventListener('click', toggleFav);
+    fav.addEventListener("click", toggleFav);
     li.appendChild(fav);
-    var neighborhood = document.createElement('p');
+    var neighborhood = document.createElement("p");
     neighborhood.innerHTML = restaurant.neighborhood;
     li.appendChild(neighborhood);
-    var address = document.createElement('p');
+    var address = document.createElement("p");
     address.innerHTML = restaurant.address;
     li.appendChild(address);
-    var more = document.createElement('a');
-    more.innerHTML = 'View Details';
+    var more = document.createElement("a");
+    more.innerHTML = "View Details";
     more.href = DBHelper.urlForRestaurant(restaurant);
     var restName = restaurant.name;
     var cuisine = restaurant.cuisine_type;
     var location = restaurant.neighborhood;
-    more.setAttribute('aria-label', " View " + restName + " details. " + cuisine + " restaurant located in " + location);
+    more.setAttribute("aria-label", " View " + restName + " details. " + cuisine + " restaurant located in " + location);
     li.appendChild(more);
     return li;
 };
@@ -220,7 +220,7 @@ var addMarkersToMap = function (restaurants) {
     restaurants.forEach(function (restaurant) {
         // Add marker to the map
         var marker = DBHelper.mapMarkerForRestaurant(restaurant, self.map);
-        google.maps.event.addListener(marker, 'click', function () {
+        google.maps.event.addListener(marker, "click", function () {
             window.location.href = marker.url;
         });
         self.markers.push(marker);

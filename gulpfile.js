@@ -33,7 +33,9 @@ var paths = {
 var watchedBrowserify = watchify(browserify({
     basedir: '.',
     debug: true,
-    entries: ['src/assets/js/index.ts', 'src/assets/js/restaurant-detail.ts'],
+    entries:
+    //  ['src/assets/js/index.ts', 'src/assets/js/restaurant-detail.ts', 'src/assets/js/dbhelper.ts']
+    ['src/assets/js/test.ts'],
     cache: {},
     packageCache: {}
 }).plugin(tsify));
