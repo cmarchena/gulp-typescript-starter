@@ -35,7 +35,7 @@ var watchedBrowserify = watchify(browserify({
     debug: true,
     entries:
     //  ['src/assets/js/index.ts', 'src/assets/js/restaurant-detail.ts', 'src/assets/js/dbhelper.ts']
-    ['src/assets/js/test.ts'],
+    ['src/assets/js/dbhelper.ts'],
     cache: {},
     packageCache: {}
 }).plugin(tsify));

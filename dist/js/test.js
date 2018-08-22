@@ -1,14 +1,19 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var idb_1 = require("idb");
-// CREATE DATABASE AND KEY-VALUE
-var dbPromise = idb_1.default.open('test', 2, function (upgradeDb) {
+// CREATE DATABASE, ADD KEY-VALUE AND CREATE INDEX
+var dbPromise = idb_1.default.open('test', 4, function (upgradeDb) {
     switch (upgradeDb.oldVersion) {
         case 0:
             var keyValStore = upgradeDb.createObjectStore('keyval');
             keyValStore.put('world', 'hello');
         case 1:
-            upgradeDb.createObjectStore('people', { keyPath: 'name' });
+            upgradeDb.createObjectStore('restaurants', { keyPath: 'id' });
+        case 2:
+            var restStore = upgradeDb.transaction.objectStore('restaurants');
+            restStore.createIndex('cuisine', 'cuisine_type');
+        case 3:
+            restStore.createIndex('neighborhoods', 'neighborhood');
     }
 });
 //READ VALUE
@@ -19,7 +24,7 @@ dbPromise.then(function (db) {
 }).then(function (val) {
     console.log("The value of hello is " + val);
 }).catch(function (err) { return console.log(err); });
-//CREATE KEYVALUE
+//CREATE KEY VALUES
 dbPromise.then(function (db) {
     var tx = db.transaction('keyval', 'readwrite');
     var keyValStore = tx.objectStore('keyval');
@@ -29,9 +34,9 @@ dbPromise.then(function (db) {
     console.log('Added to Object Store');
 });
 dbPromise.then(function (db) {
-    var tx = db.transaction('people', 'readwrite');
-    var peopleStore = tx.objectStore('people');
-    peopleStore.put({
+    var tx = db.transaction('restaurants', 'readwrite');
+    var restStore = tx.objectStore('restaurants');
+    restStore.put({
         name: 'Mission Chinese Food',
         neighborhood: 'Manhattan',
         photograph: '1',
@@ -55,7 +60,7 @@ dbPromise.then(function (db) {
         id: 1,
         is_favorite: 'false'
     });
-    peopleStore.put({
+    restStore.put({
         name: 'Emily',
         neighborhood: 'Brooklyn',
         photograph: '2',
@@ -79,5 +84,65 @@ dbPromise.then(function (db) {
         is_favorite: 'false',
         id: 2
     });
+    restStore.put({
+        "name": "Kang Ho Dong Baekjeong",
+        "neighborhood": "Manhattan",
+        "photograph": "3",
+        "address": "1 E 32nd St, New York, NY 10016",
+        "latlng": {
+            "lat": 40.747143,
+            "lng": -73.985414
+        },
+        "cuisine_type": "Asian",
+        "operating_hours": {
+            "Monday": "11:30 am - 2:00 am",
+            "Tuesday": "11:30 am - 2:00 am",
+            "Wednesday": "11:30 am - 2:00 am",
+            "Thursday": "11:30 am - 2:00 am",
+            "Friday": "11:30 am - 6:00 am",
+            "Saturday": "11:30 am - 6:00 am",
+            "Sunday": "11:30 am - 2:00 am"
+        },
+        "createdAt": 1504095571434,
+        "updatedAt": "2018-08-18T15:13:36.454Z",
+        "id": 3,
+        "is_favorite": "false"
+    });
     return tx.complete;
-}).then(function () { return console.log("People ObjectStore created and items added"); });
+}).then(function () { return console.log("Restaurant ObjectStore created and items added"); });
+//GET NEW VALUES
+dbPromise.then(function (db) {
+    var tx = db.transaction('restaurants');
+    var restStore = tx.objectStore('restaurants');
+    var restIndex = restStore.index('cuisine');
+    return restIndex.getAll('Pizza');
+}).then(function (restaurants) {
+    console.log("The value of restaurants", restaurants);
+}).catch(function (err) { return console.log(err); });
+dbPromise.then(function (db) {
+    var tx = db.transaction('restaurants');
+    var restStore = tx.objectStore('restaurants');
+    var restIndex = restStore.index('neighborhoods');
+    return restIndex.getAll();
+}).then(function (restaurants) {
+    console.log("The value of restaurants", restaurants);
+}).catch(function (err) { return console.log(err); });
+//CURSORS
+dbPromise.then(function (db) {
+    var tx = db.transaction('restaurants');
+    var restStore = tx.objectStore('restaurants');
+    var restIndex = restStore.index('neighborhoods');
+    return restIndex.openCursor();
+}).then(function (cursor) {
+    if (!cursor)
+        return;
+    return cursor.advance(1);
+})
+    .then(function logRestaurant(cursor) {
+    if (!cursor)
+        return;
+    console.log("Cursored at ", cursor.value.name);
+    return cursor.continue().then(logRestaurant);
+}).then(function () {
+    console.log("Done Cursoring!");
+});

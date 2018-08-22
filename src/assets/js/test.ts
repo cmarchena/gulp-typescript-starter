@@ -1,14 +1,17 @@
 import idb from "idb";
 // CREATE DATABASE, ADD KEY-VALUE AND CREATE INDEX
-const dbPromise = idb.open('test', 3, (upgradeDb) => {
+const dbPromise = idb.open('test', 4, (upgradeDb) => {
     switch (upgradeDb.oldVersion) {
         case 0:
             const keyValStore = upgradeDb.createObjectStore('keyval');
             keyValStore.put('world', 'hello');
         case 1:
-            upgradeDb.createObjectStore('people', { keyPath: 'id' });
-        case 2: const peopleStore = upgradeDb.transaction.objectStore('people');
-            peopleStore.createIndex('cuisine', 'cuisine_type');
+            upgradeDb.createObjectStore('restaurants', { keyPath: 'id' });
+        case 2:
+            const restStore = upgradeDb.transaction.objectStore('restaurants');
+            restStore.createIndex('cuisine', 'cuisine_type');
+        case 3:
+            restStore.createIndex('neighborhoods', 'neighborhood')
 
     }
 })
@@ -30,9 +33,9 @@ dbPromise.then((db) => {
     console.log('Added to Object Store')
 })
 dbPromise.then((db) => {
-    const tx = db.transaction('people', 'readwrite');
-    const peopleStore = tx.objectStore('people');
-    peopleStore.put({
+    const tx = db.transaction('restaurants', 'readwrite');
+    const restStore = tx.objectStore('restaurants');
+    restStore.put({
         name: 'Mission Chinese Food',
         neighborhood: 'Manhattan',
         photograph: '1',
@@ -57,7 +60,7 @@ dbPromise.then((db) => {
         is_favorite: 'false'
     });
 
-    peopleStore.put({
+    restStore.put({
         name: 'Emily',
         neighborhood: 'Brooklyn',
         photograph: '2',
@@ -82,7 +85,7 @@ dbPromise.then((db) => {
         id: 2
 
     });
-    peopleStore.put({
+    restStore.put({
         "name": "Kang Ho Dong Baekjeong",
         "neighborhood": "Manhattan",
         "photograph": "3",
@@ -109,13 +112,39 @@ dbPromise.then((db) => {
 
     return tx.complete;
 
-}).then(() => console.log("People ObjectStore created and items added"))
+}).then(() => console.log("Restaurant ObjectStore created and items added"))
 //GET NEW VALUES
 dbPromise.then((db) => {
-    const tx = db.transaction('people');
-    var peopleStore = tx.objectStore('people');
-    const peopleIndex = peopleStore.index('cuisine')
-    return peopleIndex.getAll('Pizza');
-}).then((people) => {
-    console.log("The value of people", people)
+    const tx = db.transaction('restaurants');
+    var restStore = tx.objectStore('restaurants');
+    const restIndex = restStore.index('cuisine')
+    return restIndex.getAll('Pizza');
+}).then((restaurants) => {
+    console.log("The value of restaurants", restaurants)
 }).catch(err => console.log(err))
+dbPromise.then((db) => {
+    const tx = db.transaction('restaurants');
+    var restStore = tx.objectStore('restaurants');
+    const restIndex = restStore.index('neighborhoods')
+    return restIndex.getAll();
+}).then((restaurants) => {
+    console.log("The value of restaurants", restaurants)
+}).catch(err => console.log(err))
+//CURSORS
+
+dbPromise.then((db) => {
+    const tx = db.transaction('restaurants');
+    var restStore = tx.objectStore('restaurants');
+    const restIndex = restStore.index('neighborhoods')
+    return restIndex.openCursor();
+}).then((cursor) => {
+    if (!cursor) return;
+    return cursor.advance(1);
+})
+    .then(function logRestaurant(cursor: any) {
+        if (!cursor) return;
+        console.log("Cursored at ", cursor.value.name);
+        return cursor.continue().then(logRestaurant)
+    }).then(() => {
+        console.log("Done Cursoring!")
+    });
