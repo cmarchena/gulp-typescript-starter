@@ -37,15 +37,15 @@
           <div class="row">
             <div class="s12 m6">
               <label aria-label="Filter by Neighborhoods">
-                <select id="neighborhoods-select" name="neighborhoods" onchange="updateRestaurants()" role="listbox">
-                  <option value="all">All Neighborhoods</option>
+                <select id="neighborhoods-select" name="neighborhoods" role="listbox">
+                  <option value="">All Neighborhoods</option>
                 </select>
               </label>
             </div>
             <div class="s12 m6">
               <label aria-label="Filter by type of cuisine">
-                <select id="cuisines-select" name="cuisines" onchange="updateRestaurants()" tabindex="0" role="listbox">
-                  <option value="all" tabindex="0">All Cuisines</option>
+                <select id="cuisines-select" name="cuisines" tabindex="0" role="listbox">
+                  <option value="" tabindex="0">All Cuisines</option>
                 </select>
               </label>
             </div>
@@ -55,11 +55,10 @@
       </section>
     </main>
 
-    <!-- <script src="sw.js"></script> -->
-    <!-- <script src="/js/index.js"></script> -->
-    <!-- <script src="/js/dbhelper.js"></script> -->
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyACGz0tWs__s2RqU_lZ5dZc3PYTYn-O7-E&libraries=places&callback=initMap"></script>
+
+    <script src="/sw.js"></script>
     <script src="/bundle.js"></script>
-    <!-- <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyACGz0tWs__s2RqU_lZ5dZc3PYTYn-O7-E&libraries=places&callback=initMap"></script> -->
 
 
 

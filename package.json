@@ -31,6 +31,7 @@
     "watchify": "^3.11.0"
   },
   "dependencies": {
+    "@types/googlemaps": "^3.30.11",
     "idb": "^2.1.3"
   }
 }

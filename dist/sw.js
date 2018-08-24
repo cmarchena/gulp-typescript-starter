@@ -1,56 +1,20 @@
 const staticCacheName = "udacity-mws-restaurants-v1";
+const contentImgsCache = "udacity-mws-restaurants-images";
+const allCaches = [
+  staticCacheName,
+  contentImgsCache
+];
 self.addEventListener("install", event => {
   event.waitUntil(
     caches.open(staticCacheName).then(cache => {
       cache.addAll(["/",
-        "/sw.js",
+        "/",
         "index.html",
         "restaurant.html",
         "/css/styles.css",
-        "/js/index.js",
-        "/js/restaurant-detail.js",
+        "bundle.js",
         "/fonts/Inconsolata-Regular.ttf",
-        "/fonts/Inconsolata-Bold.ttf",
-        "/images/1-desktop.jpg",
-        "/images/2-desktop.jpg",
-        "/images/3-desktop.jpg",
-        "/images/4-desktop.jpg",
-        "/images/5-desktop.jpg",
-        "/images/6-desktop.jpg",
-        "/images/7-desktop.jpg",
-        "/images/8-desktop.jpg",
-        "/images/9-desktop.jpg",
-        "/images/10-desktop.jpg",
-        "/images/1-desktop.webp",
-        "/images/2-desktop.webp",
-        "/images/3-desktop.webp",
-        "/images/4-desktop.webp",
-        "/images/5-desktop.webp",
-        "/images/6-desktop.webp",
-        "/images/7-desktop.webp",
-        "/images/8-desktop.webp",
-        "/images/9-desktop.webp",
-        "/images/10-desktop.webp",
-        "/images/1-tablet.webp",
-        "/images/2-tablet.webp",
-        "/images/3-tablet.webp",
-        "/images/4-tablet.webp",
-        "/images/5-tablet.webp",
-        "/images/6-tablet.webp",
-        "/images/7-tablet.webp",
-        "/images/8-tablet.webp",
-        "/images/9-tablet.webp",
-        "/images/10-tablet.webp",
-        "/images/1-mobile.webp",
-        "/images/2-mobile.webp",
-        "/images/3-mobile.webp",
-        "/images/4-mobile.webp",
-        "/images/5-mobile.webp",
-        "/images/6-mobile.webp",
-        "/images/7-mobile.webp",
-        "/images/8-mobile.webp",
-        "/images/9-mobile.webp",
-        "/images/10-mobile.webp"
+        "/fonts/Inconsolata-Bold.ttf"
       ]);
     })
   );
@@ -61,8 +25,7 @@ self.addEventListener("activate", event => {
       Promise.all(
         cacheNames
         .filter(cacheName => {
-
-          cacheName.startsWith("udacity-") && cacheName != staticCacheName;
+          cacheName.startsWith("udacity-") && !allCaches.includes(cacheName);
         })
         .map(cacheName => {
           caches.delete(cacheName);
@@ -73,14 +36,20 @@ self.addEventListener("activate", event => {
 });
 
 self.addEventListener('fetch', event => {
+const requestUrl = new URL(event.request.url);
+if(requestUrl.origin === location.origin){
+   if(requestUrl.pathname == '/restaurant.html' ){
+     event.respondWith(caches.match('restaurant.html'))
+     return
+  }
+  if (requestUrl.pathname.startsWith( '/images/')) {
+    event.respondWith(servePhoto(event.request))
+    return;
+  }
+}
   event.respondWith(
     caches.match(event.request).then(response => {
       return response || fetch(event.request)
-        .then(fetchResponse => {
-          return caches.open(staticCacheName).then(cache => {
-            cache.put(event.request, fetchResponse.clone());
-            return fetchResponse;
-          })
         })
         .catch(error => {
           return new Response("No connection from the network", {
@@ -88,6 +57,21 @@ self.addEventListener('fetch', event => {
             statusText: 'No connection from the network'
           })
         })
-    })
+    
   );
 });
+
+function servePhoto(request) {
+  var storageUrl = request.url.replace(/-\w\.webp$/, '-mobile.webp') || request.url.replace(/-\w\.jpg$/, '-tablet.jpg')
+
+  return caches.open(contentImgsCache).then(function (cache) {
+    return cache.match(storageUrl).then(function (response) {
+      if (response) return response;
+
+      return fetch(request).then(function (networkResponse) {
+        cache.put(storageUrl, networkResponse.clone());
+        return networkResponse;
+      });
+    });
+  });
+}

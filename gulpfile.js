@@ -13,6 +13,9 @@ var sass = require('gulp-sass');
 var changed = require('gulp-changed');
 var imagemin = require('gulp-imagemin');
 var cache = require('gulp-cache');
+var uglify = require('gulp-uglify');
+var sourcemaps = require('gulp-sourcemaps');
+var buffer = require('vinyl-buffer');
 var browserSync = require('browser-sync').create();
 
 const AUTOPREFIXER_BROWSERS = [
@@ -34,8 +37,8 @@ var watchedBrowserify = watchify(browserify({
     basedir: '.',
     debug: true,
     entries:
-    //  ['src/assets/js/index.ts', 'src/assets/js/restaurant-detail.ts', 'src/assets/js/dbhelper.ts']
-    ['src/assets/js/dbhelper.ts'],
+    ['src/assets/js/dbhelper.ts', 'src/assets/js/index.ts', 'src/assets/js/restaurant-detail.ts'
+ ],
     cache: {},
     packageCache: {}
 }).plugin(tsify));
@@ -74,7 +77,7 @@ gulp.task('styles', function () {
         .pipe(browserSync.reload({
             stream: true
         }))
-});
+}); 
 
 gulp.task("copy-html", function () {
     return gulp.src(paths.pages)
@@ -95,7 +98,7 @@ gulp.task('fonts', function () {
     return gulp.src('src/assets/fonts/**/*')
         .pipe(gulp.dest('dist/fonts'))
 })
-gulp.task('watch', ['browserSync', 'styles'], function () {
+gulp.task('watch', ['browserSync',  'styles' ], function () {
     gulp.watch('src/assets/sass/**/*.scss', ['styles']);
     gulp.watch('src/*.html', browserSync.reload);
     gulp.watch('src/*.js', browserSync.reload);
@@ -104,10 +107,16 @@ gulp.task('watch', ['browserSync', 'styles'], function () {
 function bundle() {
     return watchedBrowserify
         .bundle()
-        .pipe(source('bundle.js'))
-        .pipe(gulp.dest("dist"));
+    .pipe(source('bundle.js'))
+    .pipe(buffer())
+    .pipe(sourcemaps.init({loadMaps: true}))
+    .pipe(uglify())
+    .pipe(sourcemaps.write('./'))
+    .pipe(gulp.dest("dist"));
 }
 
-gulp.task("default", ["scripts","copy-html", "styles", "imagemin", "fonts", "watch"],bundle);
+gulp.task("default", ["scripts","copy-html", "styles",
+ "imagemin", "fonts", "watch"],bundle);
+
 watchedBrowserify.on("update", bundle);
 watchedBrowserify.on("log", gutil.log);

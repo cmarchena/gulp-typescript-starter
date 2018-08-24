@@ -376,7 +376,7 @@ textarea {
   width: 100%;
   margin-bottom: 1em;
   min-height: 60px;
-  padding: 0;
+  padding: 1em;
   font-size: 1.1em;
   background-color: #f1d6cb;
 }
@@ -452,18 +452,14 @@ textarea {
 /* ====================== Restaurant Listing ====================== */
 
 #restaurants-list {
-  /* display: flex;
-  flex-direction: row;
-  align-content: center;
-  flex-flow: wrap; */
   display: grid;
-  grid-template-columns: repeat(auto-fill, 300px);
+  grid-template-columns: repeat(auto-fit, minmax(300px, 350px));
   justify-content: center;
   grid-gap: 5px;
   background-color: #f3f3f3;
   list-style: outside none none;
   text-align: center;
-  padding-left: 0;
+  padding: 0 5px;
 }
 
 #restaurants-list li {
@@ -544,6 +540,9 @@ textarea {
 /* TABLET: 728px */
 
 @media screen and (min-width: 728px) {
+  .card {
+    height: 500px;
+  }
   #restaurants-list li {
     margin: 1em 0;
   }
@@ -566,6 +565,9 @@ textarea {
 @media screen and (min-width: 1024px) {
   #breadcrumb {
     width: 50%;
+  }
+  .card {
+    height: 450px;
   }
   #review-form {
     max-width: 50vw;
