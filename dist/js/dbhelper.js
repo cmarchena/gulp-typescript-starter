@@ -4,19 +4,6 @@ var idb_1 = require("idb");
 var DBHelper = /** @class */ (function () {
     function DBHelper() {
     }
-    DBHelper.fetchRestaurantByCuisineAndNeighborhood = function (cuisine, neighborhood) {
-        // Fetch all restaurants
-        return DBHelper.readAllRestaurants().then(function (restaurants) {
-            var results = restaurants;
-            if (cuisine != 'all') { // filter by cuisine
-                results = results.filter(function (r) { return r.cuisine_type == cuisine; });
-            }
-            if (neighborhood != 'all') { // filter by neighborhood
-                results = results.filter(function (r) { return r.neighborhood == neighborhood; });
-            }
-            return results;
-        });
-    };
     DBHelper.mapMarkerForRestaurant = function (restaurant, map) {
         var marker = new google.maps.Marker({
             position: restaurant.latlng,
@@ -143,4 +130,3 @@ var DBHelper = /** @class */ (function () {
     return DBHelper;
 }());
 exports.default = DBHelper;
-;

@@ -3,19 +3,12 @@ import DBHelper from './dbhelper';
 import { Restaurant } from './interfaces';
 import map from './map'
 //Service Worker
+// Check that service workers are registered
 if ('serviceWorker' in navigator) {
-    navigator.serviceWorker
-        .register('/sw.js', {
-            scope: '/',
-        })
-        .then((reg) => {
-            // registration worked
-            console.log(`Registration succeeded. Scope is ${reg.scope}`);
-        })
-        .catch((error) => {
-            // registration failed
-            console.log(`Registration failed with ${error}`);
-        });
+    // Use the window load event to keep the page load performant
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js');
+    });
 }
 //End Service Worker
 
@@ -174,16 +167,12 @@ const fillRestaurantsHTML = (cuisine: any, neighborhood: any) => {
             ul.insertAdjacentElement('afterbegin', p);
             locations = [];
             showMap(locations);
-
-
         }
         else {
 
             filteredRestaurants.map((restaurant: Restaurant) => {
                 locations.push(restaurant.latlng)
-                ul.appendChild(createRestaurantHTML(restaurant));
-
-                return locations;
+                ul.appendChild(createRestaurantHTML(restaurant)); return locations;
             })
 
 

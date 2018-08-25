@@ -18,6 +18,7 @@ var sourcemaps = require('gulp-sourcemaps');
 var buffer = require('vinyl-buffer');
 var browserSync = require('browser-sync').create();
 
+
 const AUTOPREFIXER_BROWSERS = [
     'ie >= 10',
     'ie_mob >= 10',
@@ -104,6 +105,7 @@ gulp.task('watch', ['browserSync',  'styles' ], function () {
     gulp.watch('src/*.js', browserSync.reload);
 
 });
+
 function bundle() {
     return watchedBrowserify
         .bundle()

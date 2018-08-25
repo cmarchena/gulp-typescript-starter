@@ -62,6 +62,7 @@ export default class DBHelper {
                 })
             })
     };
+
     static readAllRestaurants = () => {
         return DBHelper.storedRestaurants().then(() => {
             return DBHelper.dbPromise().then((db) => {
@@ -69,6 +70,8 @@ export default class DBHelper {
             })
         })
     }
+
+
     static readRestaurantById = (id: number) => {
         return DBHelper.storedRestaurants().then(() => {
             return DBHelper.dbPromise().then((db) => {
@@ -90,6 +93,7 @@ export default class DBHelper {
             })
         })
     }
+
     static readAllReviews = () => {
         return DBHelper.storedReviews().then(() => {
             return DBHelper.dbPromise().then((db) => {
@@ -97,20 +101,7 @@ export default class DBHelper {
             })
         })
     };
-    static fetchRestaurantByCuisineAndNeighborhood(cuisine: string, neighborhood: string) {
-        // Fetch all restaurants
-        return DBHelper.readAllRestaurants().then((restaurants) => {
 
-            let results = restaurants;
-            if (cuisine != 'all') { // filter by cuisine
-                results = results.filter(r => r.cuisine_type == cuisine);
-            }
-            if (neighborhood != 'all') { // filter by neighborhood
-                results = results.filter(r => r.neighborhood == neighborhood);
-            }
-            return results;
-        })
-    }
     static urlForRestaurant = (restaurant: Restaurant) => {
         return (`./restaurant.html?id=${restaurant.id}`);
     }
@@ -146,48 +137,4 @@ export default class DBHelper {
             return alert("You're offline!")
         }
     }
-    // static toggleFav = (id: number, isFav: any) => {
-    //     if (isFav == 'true' && navigator.onLine) {
-    //         const url = `http://localhost:1337/restaurants/${id}/?is_favorite=true`;
-    //         return fetch(url, {
-    //             method: "PUT",
-    //         }).then((res) => res.json())
-
-    //             .then((response) => console.log("Success:", response, url));
-    //     } else {
-    //         const url = `http://localhost:1337/restaurants/${id}/?is_favorite=false`;
-    //         return fetch(url, {
-    //             method: "PUT",
-    //         }).then((res) => res.json())
-
-    //             .then((response) => console.log("Success:", response, url));
-    //     }
-
-    // }
-    // static toggleFav = () => {
-
-    //     if (fav.className === "no-fav" && navigator.onLine) {
-    //         const url = `http://localhost:1337/restaurants/${id}/?is_favorite=true`;
-    //         fetch(url, {
-    //             method: "PUT",
-    //         }).then((res) => res.json())
-    //             .catch((error) => console.error("Error:", error))
-    //             .then((response) => console.log("Success:", response, url));
-    //         fav.classList.replace("no-fav", "yes-fav");
-    //         fav.removeAttribute("aria-label");
-    //         fav.setAttribute("aria-label", "marked as favorite");
-    //     } else {
-    //         const url = `http://localhost:1337/restaurants/${id}/?is_favorite=false`;
-    //         fetch(url, {
-    //             method: "PUT",
-    //         }).then((res) => res.json())
-    //             .catch((error) => console.error("Error:", error))
-    //             .then((response) => console.log("Success:", response, url));
-    //         fav.classList.replace("yes-fav", "no-fav");
-    //         fav.removeAttribute("aria-label");
-    //         fav.setAttribute("aria-label", "marked as no favorite");
-    //     }
-
-    // }
-
-};
+}

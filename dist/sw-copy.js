@@ -13,14 +13,19 @@
 
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/3.4.1/workbox-sw.js");
 
+
 /**
  * The workboxSW.precacheAndRoute() method efficiently caches and responds to
  * requests for URLs in the manifest.
  * See https://goo.gl/S9QRab
  */
 self.__precacheManifest = [{
+    "url": "404.html",
+    "revision": "808f893fcb72fb6b64cc218879dcc588"
+  },
+  {
     "url": "bundle.js",
-    "revision": "7dbef292c85908b28e790663887f21ba"
+    "revision": "220e35c300d37e71a2007a832595428c"
   },
   {
     "url": "css/styles.css",
@@ -264,7 +269,7 @@ self.__precacheManifest = [{
   },
   {
     "url": "js/index.js",
-    "revision": "6fa29f81a7efecab5bdf9c539115aae6"
+    "revision": "29ed2deae0c40a3b59e247443adf0aaa"
   },
   {
     "url": "js/restaurant-detail.js",
@@ -281,25 +286,49 @@ self.__precacheManifest = [{
   {
     "url": "restaurant.html",
     "revision": "43f2fb89df5888e3b1a979a8d6ba494f"
-  },
-  {
-    "url": "sw-copy.js",
-    "revision": "c97c3788b0c3ff06026659575edbac0b"
   }
 ].concat(self.__precacheManifest || []);
 workbox.precaching.suppressWarnings();
 workbox.precaching.precacheAndRoute(self.__precacheManifest, {});
 
+// workbox.routing.registerRoute(
+//   /\/images\/\w+\.(?:png|gif|jpg)/,
+//   workbox.strategies.cacheFirst({
+//     cacheName: 'images-cache',
+//     plugins: [
+//       new workbox.expiration.Plugin({
+//         maxEntries: 50,
+//         maxAgeSeconds: 30 * 24 * 60 * 60, // 30 Days
+//       })
+//     ]
+//   })
+// );
+const DATABASE_URL = 
+  //Changed to Heroku 
+  // return 'http://localhost:1337'
+   `https://mws-project-3.herokuapp.com`;
+
+// working.routing.registerRoute('/', arg =>{
+//   if (!response) {
+//     return caches.match('offline.html');
+//   } else if (response.status === 404) {
+//     return caches.match('404.html');
+//   }
+//   return response || fetch(event.request)
+// }
+// )
+
+
 const homeHandler = workbox.strategies.staleWhileRevalidate({
-  cacheName: 'home',
+
+  cacheName: 'test',
   plugins: [
     new workbox.expiration.Plugin({
       maxEntries: 50,
       maxAgeSeconds: 30 * 24 * 60 * 60,
     })
   ]
-});
-
+})
 workbox.routing.registerRoute(
   'https://mws-project-3.herokuapp.com/restaurants',
 args => {
@@ -309,23 +338,103 @@ args => {
     }
 );
 
-const restaurantHandler = workbox.strategies.staleWhileRevalidate({
-  cacheName: 'restaurants-cache',
-  plugins: [
-    new workbox.expiration.Plugin({
-      maxEntries: 50,
-      maxAgeSeconds: 30 * 24 * 60 * 60,
+
+
+// const restaurantHandler = workbox.strategies.staleWhileRevalidate({
+//   cacheName: 'restaurants-cache',
+//   plugins: [
+//     new workbox.expiration.Plugin({
+//       maxEntries: 50,
+//       maxAgeSeconds: 30 * 24 * 60 * 60,
+//     })
+//   ]
+// });
+
+// workbox.routing.registerRoute(/\/restaurant\.html\?id\=\d+/, args => {
+//   return restaurantHandler.handle(args).then(response => {
+    
+//     return response;
+//   })
+// });
+
+
+
+
+
+/* const staticCacheName = "udacity-mws-restaurants-v1";
+const contentImgsCache = "udacity-mws-restaurants-images";
+const allCaches = [
+  staticCacheName,
+  contentImgsCache
+];
+self.addEventListener("install", event => {
+  event.waitUntil(
+    caches.open(staticCacheName).then(cache => {
+      cache.addAll(["/",
+        "/",
+        "index.html",
+        "restaurant.html",
+        "/css/styles.css",
+        "bundle.js",
+        "/fonts/Inconsolata-Regular.ttf",
+        "/fonts/Inconsolata-Bold.ttf"
+      ]);
     })
-  ]
+  );
+});
+self.addEventListener("activate", event => {
+  event.waitUntil(
+    caches.keys().then(cacheNames => {
+      Promise.all(
+        cacheNames
+        .filter(cacheName => {
+          cacheName.startsWith("udacity-") && !allCaches.includes(cacheName);
+        })
+        .map(cacheName => {
+          caches.delete(cacheName);
+        })
+      );
+    })
+  );
 });
 
-workbox.routing.registerRoute(/\/restaurant\.html\?id\=\d+/, args => {
-  return restaurantHandler.handle(args).then(response => {
-    if (!response) {
-      return caches.match('offline.html');
-    } else if (response.status === 404) {
-      return caches.match('404.html');
-    }
-    return response || fetch(event.request)
-  })
+self.addEventListener('fetch', event => {
+const requestUrl = new URL(event.request.url);
+if(requestUrl.origin === location.origin){
+   if(requestUrl.pathname == '/restaurant.html' ){
+     event.respondWith(caches.match('restaurant.html'))
+     return
+  }
+  if (requestUrl.pathname.startsWith( '/images/')) {
+    event.respondWith(servePhoto(event.request))
+    return;
+  }
+}
+  event.respondWith(
+    caches.match(event.request).then(response => {
+      return response || fetch(event.request)
+        })
+        .catch(error => {
+          return new Response("No connection from the network", {
+            status: 404,
+            statusText: 'No connection from the network'
+          })
+        })
+    
+  );
 });
+
+function servePhoto(request) {
+  var storageUrl = request.url.replace(/-\w\.webp$/, '-mobile.webp') || request.url.replace(/-\w\.jpg$/, '-tablet.jpg')
+
+  return caches.open(contentImgsCache).then(function (cache) {
+    return cache.match(storageUrl).then(function (response) {
+      if (response) return response;
+
+      return fetch(request).then(function (networkResponse) {
+        cache.put(storageUrl, networkResponse.clone());
+        return networkResponse;
+      });
+    });
+  });
+}   */

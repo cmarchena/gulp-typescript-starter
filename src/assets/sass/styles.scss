@@ -3,6 +3,7 @@
 
 @font-face {
   font-family: 'Inconsolata';
+  font-display: fallback;
   src: url('../fonts/Inconsolata-Bold.ttf') format('truetype'), url('../fonts/Inconsolata-Regular.ttf') format('truetype')
 }
 
@@ -126,6 +127,12 @@ nav {
 nav#breadcrumb {
   height: 3.5em;
   justify-content: left;
+}
+
+.default-pages {
+  margin: 0 auto;
+  padding: 2em 3em;
+  height: 70vh;
 }
 
 #maincontent {

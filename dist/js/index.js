@@ -1,19 +1,13 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var dbhelper_1 = require("./dbhelper");
+var map_1 = require("./map");
 //Service Worker
+// Check that service workers are registered
 if ('serviceWorker' in navigator) {
-    navigator.serviceWorker
-        .register('/sw.js', {
-        scope: '/',
-    })
-        .then(function (reg) {
-        // registration worked
-        console.log("Registration succeeded. Scope is " + reg.scope);
-    })
-        .catch(function (error) {
-        // registration failed
-        console.log("Registration failed with " + error);
+    // Use the window load event to keep the page load performant
+    window.addEventListener('load', function () {
+        navigator.serviceWorker.register('/sw.js');
     });
 }
 //End Service Worker
@@ -104,6 +98,7 @@ var updateRestaurants = function () {
         document.getElementById('restaurants-list').innerHTML = '';
         fillRestaurantsHTML(state.cuisine, state.neighborhood);
         locations = [];
+        console.log("Arriba", locations);
     };
 };
 var fillRestaurantsHTML = function (cuisine, neighborhood) {
@@ -127,17 +122,17 @@ var fillRestaurantsHTML = function (cuisine, neighborhood) {
             p.innerHTML = 'There is no restaurants matching your criteria. Try again a broader selection';
             ul.insertAdjacentElement('afterbegin', p);
             locations = [];
-            return locations;
+            showMap(locations);
         }
         else {
             filteredRestaurants.map(function (restaurant) {
                 locations.push(restaurant.latlng);
                 ul.appendChild(createRestaurantHTML(restaurant));
-                console.log(locations);
                 return locations;
             });
+            showMap(locations);
         }
-        //showMap(locations);
+        console.log("Abajo", locations);
     });
 };
 /**
@@ -215,5 +210,5 @@ var createRestaurantHTML = function (restaurant) {
     return li;
 };
 var showMap = function (locations) {
-    //map(locations)
+    map_1.default(locations);
 };
