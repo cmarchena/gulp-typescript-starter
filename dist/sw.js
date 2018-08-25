@@ -289,6 +289,17 @@ self.__precacheManifest = [{
 ].concat(self.__precacheManifest || []);
 workbox.precaching.suppressWarnings();
 workbox.precaching.precacheAndRoute(self.__precacheManifest, {});
+workbox.routing.registerRoute(
+  /\/images\//,
+  workbox.strategies.cacheFirst({
+    cacheName: 'image-cache',
+    plugins: [
+      new workbox.expiration.Plugin({
+        maxAgeSeconds: 24 * 60 * 60,
+      }),
+    ],
+  })
+);
 
 const homeHandler = workbox.strategies.staleWhileRevalidate({
   cacheName: 'home',

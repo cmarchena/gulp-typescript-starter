@@ -8,8 +8,8 @@
 }
 
 :root {
-  --primary-color: #F78154;
-  --secondary-color: #4D9078;
+  --primary-color: #315131;
+  --secondary-color: #205D86;
   --main-typography: 'Inconsolata', monospace;
   ;
 }
@@ -180,6 +180,9 @@ nav#breadcrumb {
   background-color: var(--primary-color);
   /* A11y Changes: to improve ratio to 5 */
   /* color: #aaa; */
+  display: flex;
+  justify-content: center;
+  align-items: center;
   color: #E0E0E0;
   font-size: 8pt;
   letter-spacing: 0.0625rem;
@@ -189,7 +192,10 @@ nav#breadcrumb {
 }
 
 #footer a {
-  color: #082f33;
+  color: #DFF4FB;
+  font-size: 2em;
+  letter-spacing: 0.2em;
+  margin: 0 1em;
 }
 
 /* ====================== Navigation ====================== */
